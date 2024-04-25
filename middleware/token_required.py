@@ -15,6 +15,8 @@ open_paths = [
 
 
 def token_reqiured(*args,**kwargs):
+  if request.method == 'OPTIONS' :
+    return response_functions.success_response_sender(data=None,message="")
   if request.path in open_paths:
     pass
   else:
@@ -40,7 +42,6 @@ def token_reqiured(*args,**kwargs):
       except Exception as e:
         try:
           refresh_token_data = decode_token(refresh_token)
-          print("Entered")
           activity = session.query(Activity).filter(Activity.session_id == refresh_token_data['session_id'],Activity.logout_at == None).first()
           if activity == None:
             session.close()

@@ -46,7 +46,7 @@ class Product(Base):
   
   __tablename__ = 'product_table'
   
-  product_name = Column(String(100),nullable=False,unique=True)
+  product_name = Column(String(100),nullable=False)
   price = Column(Double,nullable=False)
   quantity = Column(Integer,default=1)
   location_id = Column(Integer,ForeignKey('location_table.id'),nullable=False)

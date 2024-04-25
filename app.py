@@ -14,6 +14,7 @@ def invlaid_route_handle(error):
 
 @app.errorhandler(Exception)
 def global_error(error):
+    print(error)
     return response_functions.server_error_sender([],str(error))
 
 

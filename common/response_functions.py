@@ -37,7 +37,7 @@ def common_response_sender(data,message,http_status:HTTPStatus):
     response_body['message'] = message
     response =  make_response(jsonify(response_body),http_status.value)
     try:
-        token = get_token()
+        token = get_token()  
         if token : 
             response.set_cookie('access_token', token['access_token'], httponly=True)
             response.set_cookie('refresh_token', token['refresh_token'], httponly=True)
