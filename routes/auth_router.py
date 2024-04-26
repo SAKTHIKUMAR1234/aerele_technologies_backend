@@ -1,7 +1,7 @@
 from flask import Blueprint, make_response,request
 from marshmallow import ValidationError
 from util import verify_data
-from models.models import User,Role,Activity
+from models.models import User,Activity
 from common import response_strings,response_functions
 from flask_jwt_extended import create_access_token,create_refresh_token
 from util import session_genarator
@@ -24,9 +24,7 @@ def sign_up():
       user = session.query(User).filter(User.email == sign_up_details['email']).first()
       if user != None:
         return response_functions.conflict_error_sender(None,response_strings.data_already_exist_message)
-      user_role = session.query(Role).filter(Role.role_name == 'user').first()
       user = User(sign_up_details['name'],sign_up_details['email'],sign_up_details['password'])
-      user.role = user_role
       session.add(user)
       session.commit()
       session.rollback()
@@ -36,6 +34,7 @@ def sign_up():
   except ValidationError as e:
     return response_functions.bad_request_sender(None,response_strings.invalid_data_string)
   except Exception as e:
+    print(e)
     session.rollback()
     session.close()
     return response_functions.server_error_sender(None,response_strings.server_error_message)
@@ -74,6 +73,8 @@ def login():
     else:
       return response_functions.bad_request_sender(None,response_strings.invalid_data_string) 
   except Exception as e:
+    session.rollback()
+    session.close()
     return response_functions.bad_request_sender(None,response_strings.invalid_data_string)
         
 @auth_route.get('/logout')

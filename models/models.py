@@ -1,7 +1,12 @@
 from models.basemodel import Base
-from sqlalchemy import Column,String,Integer,DateTime,Text,func,ForeignKey,Double
+from sqlalchemy import Column,String,Integer,DateTime,Text,func,ForeignKey,Double,Boolean
 from sqlalchemy.orm import relationship
 from factory import bcrypt
+from enum import Enum as pyenum
+
+class RoleEnum(pyenum):
+  user = 1
+  admin = 2
 
 
 class User(Base):
@@ -11,10 +16,9 @@ class User(Base):
     name = Column(String(50),nullable=False)
     email = Column(String(60),nullable=False,unique=True)
     password = Column(Text,nullable=False)
-    role_id = Column(Integer,ForeignKey('user_role_table.id'),nullable=False)
+    role_id = Column(Integer,default=RoleEnum.user.value,nullable=False)
     
     activities = relationship('Activity',uselist=True, back_populates='user')
-    role = relationship('Role', backref='users')
     
     def __init__(self,name,email,password) -> None:
         self.name = name
@@ -35,13 +39,6 @@ class Activity(Base):
     
     user = relationship('User', back_populates='activities')
     
-    
-class Role(Base):
-    
-    __tablename__ = 'user_role_table'
-    
-    role_name = Column(String(10),nullable=False,unique=True)
-    
 class Product(Base):
   
   __tablename__ = 'product_table'
@@ -50,9 +47,10 @@ class Product(Base):
   price = Column(Double,nullable=False)
   quantity = Column(Integer,default=1)
   location_id = Column(Integer,ForeignKey('location_table.id'),nullable=False)
+  is_deleted = Column(Boolean,default=False)
   
   location = relationship('Location',uselist=False,back_populates='products')
-  movements = relationship('ProductMovement',uselist=True,back_populates='product')
+  movement = relationship('ProductMovement',uselist=False,back_populates='product')
 
 
 class Location(Base):
@@ -73,7 +71,7 @@ class ProductMovement(Base):
   from_id = Column(Integer,ForeignKey('location_table.id'),nullable=True,default=None)
   to_id = Column(Integer,ForeignKey('location_table.id'),nullable=True,default=None)
   
-  product = relationship("Product", back_populates='movements')
+  product = relationship("Product", back_populates='movement')
   from_location = relationship("Location", foreign_keys=[from_id])
   to_location = relationship("Location", foreign_keys=[to_id])
   
